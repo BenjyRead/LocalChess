@@ -64,9 +64,10 @@ private fun Title() {
             textAlign = TextAlign.Center,
             fontSize = 40.sp,
             color = MaterialTheme.colorScheme.onBackground,
+//            color = MaterialTheme.colorScheme.error, // Example color, replace with your theme color
             modifier =
-            Modifier
-                .padding(top = 16.dp, bottom = 16.dp),
+                Modifier
+                    .padding(top = 16.dp, bottom = 16.dp),
         )
     }
 }
@@ -86,9 +87,9 @@ fun LandingPage() {
     ) { paddingValues ->
         Box(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(paddingValues), // ✅ Ensures no overlap with top bar
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues), // ✅ Ensures no overlap with top bar
 //                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center,
         ) {

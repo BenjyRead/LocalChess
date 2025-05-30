@@ -843,7 +843,7 @@ fun DisplayCapturedPieces(
 ) {
     val capturedPieces = getCapturedPieces(board).filter { it.key.pieceSide != side }
 
-    val imageSize = 15.dp;
+    val imageSize = 30.dp;
     FlowRow(
         maxItemsInEachRow = 4
     ) {

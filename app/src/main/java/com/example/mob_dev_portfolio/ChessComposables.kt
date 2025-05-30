@@ -31,7 +31,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -53,12 +52,8 @@ import com.github.bhlangonijr.chesslib.Rank
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.time.LocalDateTime
 
 
@@ -233,7 +228,6 @@ fun ChessScreen(
         } else if (gameState.value == GameState.SAVING) {
             SaveDialog(
                 gameState,
-                context,
                 board.value,
                 mainPlayerTime.value,
                 opponentPlayerTime.value,
@@ -798,7 +792,6 @@ fun ExitDialog(
 @Composable
 fun SaveDialog(
     gameState: MutableState<GameState>,
-    context: Context,
     board: Board,
     mainPlayerTime: Int,
     opponentPlayerTime: Int,

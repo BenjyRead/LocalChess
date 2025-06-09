@@ -159,6 +159,10 @@ fun ButtonSection() {
             context.startActivity(Intent(context, JoinOrHost::class.java))
         }
 
+        MainMenuButton(R.string.playAgainstComputer) {
+            context.startActivity(Intent(context, EngineInitialChoices::class.java))
+        }
+
         MainMenuButton(R.string.playLocally) {
             context.startActivity(Intent(context, PlayLocallyInitialChoices::class.java))
         }

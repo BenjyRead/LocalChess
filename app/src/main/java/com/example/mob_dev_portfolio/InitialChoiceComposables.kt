@@ -221,21 +221,24 @@ fun ChooseTimeControl(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            TimeControlButton("1+0", error,
+            TimeControlButton(
+                "1+0", error,
                 selected = timeControlSelected.value == TimeControl.ONE_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.ONE_ZERO
                     timeControlMain.value = 60
                     increment.value = 0
                 })
-            TimeControlButton("5+0", error,
+            TimeControlButton(
+                "5+0", error,
                 selected = timeControlSelected.value == TimeControl.FIVE_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.FIVE_ZERO
                     timeControlMain.value = 300
                     increment.value = 0
                 })
-            TimeControlButton("10+0", error,
+            TimeControlButton(
+                "10+0", error,
                 selected = timeControlSelected.value == TimeControl.TEN_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.TEN_ZERO
@@ -243,7 +246,8 @@ fun ChooseTimeControl(
                     increment.value = 0
                 })
         }
-        TimeControlButton("Custom", error,
+        TimeControlButton(
+            "Custom", error,
             selected = timeControlSelected.value == TimeControl.CUSTOM,
             onClick = {
                 timeControlSelected.value = TimeControl.CUSTOM

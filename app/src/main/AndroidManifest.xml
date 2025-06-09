@@ -17,6 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Mobdevportfolio">
         <activity
+            android:name=".EngineInitialChoices"
+            android:exported="false"
+            android:label="@string/title_activity_engine_initial_choices"
+            android:theme="@style/Theme.Mobdevportfolio" />
+        <activity
             android:name=".JoinBluetoothGame"
             android:exported="false"
             android:label="@string/title_activity_join_bluetooth_game"

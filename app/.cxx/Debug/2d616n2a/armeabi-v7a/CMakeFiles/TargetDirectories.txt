@@ -1,0 +1,3 @@
+/home/bread/Documents/github/LocalChess/app/.cxx/Debug/2d616n2a/armeabi-v7a/CMakeFiles/stockfishjni.dir
+/home/bread/Documents/github/LocalChess/app/.cxx/Debug/2d616n2a/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/bread/Documents/github/LocalChess/app/.cxx/Debug/2d616n2a/armeabi-v7a/CMakeFiles/rebuild_cache.dir

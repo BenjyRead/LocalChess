@@ -1,1 +1,0 @@
-/home/bread/Documents/github/LocalChess/app/src/main/cpp/CMakeLists.txt

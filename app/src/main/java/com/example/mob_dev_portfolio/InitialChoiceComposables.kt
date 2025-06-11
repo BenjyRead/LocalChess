@@ -43,10 +43,21 @@ enum class TimeControl {
     CUSTOM,
 }
 
+enum class Elo {
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED,
+    CUSTOM,
+}
+
 enum class Error {
     NO_COLOR,
     NO_TIME_CONTROL,
-    BOTH,
+    NO_ELO,
+    NO_COLOR_OR_TIME_CONTROL,
+    NO_ELO_OR_TIME_CONTROL,
+    NO_ELO_OR_COLOR,
+    NO_ELO_OR_TIME_CONTROL_OR_COLOR,
 }
 
 @Composable
@@ -84,6 +95,176 @@ fun InitialChoices(
 }
 
 @Composable
+fun EngineInitialChoices(
+    pieceColor: MutableState<ColorChoice?>,
+    timeControlSelected: MutableState<TimeControl?>,
+    timeControlMainInSeconds: MutableState<Int>,
+    incrementInSeconds: MutableState<Int>,
+    eloSelected: MutableState<Elo?>,
+    stockfishElo: MutableState<Int?>,
+    error: MutableState<Error?>,
+    nextActivity: Class<*>,
+    optionalExtras: Map<String, Any> = emptyMap(),
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        ChooseColorSegment(pieceColor, error.value)
+        ChooseTimeControl(
+            timeControlSelected,
+            timeControlMainInSeconds,
+            incrementInSeconds,
+            error.value
+        )
+        ChooseElo(error.value, eloSelected, stockfishElo)
+        StartGameButton(
+            pieceColor.value,
+            timeControlSelected.value,
+            timeControlMainInSeconds.value,
+            incrementInSeconds.value,
+            error,
+            nextActivity,
+            optionalExtras
+        )
+    }
+}
+
+@Composable
+fun EloButton(text: String, error: Error?, selected: Boolean, onClick: () -> Unit = {}) {
+
+    var borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary)
+    if (selected) {
+        borderColor = BorderStroke(2.dp, Color.Green)
+    } else if (error == Error.NO_ELO || error == Error.NO_ELO_OR_COLOR || error == Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR || error == Error.NO_ELO_OR_TIME_CONTROL) {
+        borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.error)
+    }
+
+    OutlinedButton(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        border = borderColor,
+    ) {
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
+}
+
+@Composable
+fun ChooseElo(
+    error: Error?,
+    eloSelected: MutableState<Elo?>,
+    stockfishElo: MutableState<Int?>,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+
+        var titleColor = MaterialTheme.colorScheme.onBackground
+        var titleStyle = MaterialTheme.typography.labelMedium
+        if (error == Error.NO_ELO || error == Error.NO_ELO_OR_COLOR || error == Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR || error == Error.NO_ELO_OR_TIME_CONTROL) {
+            titleColor = MaterialTheme.colorScheme.error
+            titleStyle = MaterialTheme.typography.headlineMedium
+        }
+
+        Text(
+            text = stringResource(id = R.string.choose_elo),
+            color = titleColor,
+            style = titleStyle,
+        )
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            EloButton(
+                text = "Beginner (600 elo)",
+                error = error,
+                selected = eloSelected.value == Elo.BEGINNER,
+                onClick = {
+                    stockfishElo.value = 600
+                    eloSelected.value = Elo.BEGINNER
+                }
+            )
+            EloButton(
+                text = "Intermediate (1200 elo)",
+                error = error,
+                selected = eloSelected.value == Elo.INTERMEDIATE,
+                onClick = {
+                    stockfishElo.value = 1200
+                    eloSelected.value = Elo.INTERMEDIATE
+                }
+            )
+            EloButton(
+                text = "Advanced (1800 elo)",
+                error = error,
+                selected = eloSelected.value == Elo.ADVANCED,
+                onClick = {
+                    stockfishElo.value = 1800
+                    eloSelected.value = Elo.ADVANCED
+                }
+            )
+            EloButton(
+                text = "Custom",
+                error = error,
+                selected = eloSelected.value == Elo.CUSTOM,
+                onClick = {
+                    eloSelected.value = Elo.CUSTOM
+                }
+            )
+        }
+        if (eloSelected.value == Elo.CUSTOM) {
+            val sliderIndex = remember { mutableStateOf(1) };
+
+            val sliderIndexToElo = { index: Int ->
+                when (index) {
+                    1 -> 100
+                    2 -> 200
+                    3 -> 400
+                    4 -> 800
+                    5 -> 1000
+                    6 -> 1500
+                    7 -> 1600
+                    8 -> 1700
+                    9 -> 2000
+                    10 -> 2100
+                    11 -> 2200
+                    12 -> 2300
+                    13 -> 2500
+                    14 -> 3190
+                    else -> 100;
+                }
+            }
+
+            Column() {
+                Text(
+                    text = "${stockfishElo.value} elo",
+                    color = titleColor,
+                    style = titleStyle,
+                )
+                Slider(
+                    value = sliderIndex.value.toFloat(),
+                    onValueChange = {
+                        sliderIndex.value = it.toInt()
+                        stockfishElo.value = sliderIndexToElo(sliderIndex.value)
+                    },
+                    valueRange = 1f..14f,
+                    steps = 14,
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
 fun ChooseColorButton(
     imageId: Int,
     contentDescription: String,
@@ -97,7 +278,7 @@ fun ChooseColorButton(
         .clickable { onClick() }
     if (selected) {
         modifier = modifier.border(BorderStroke(2.dp, Color.Green), RoundedCornerShape(8.dp))
-    } else if (error == Error.BOTH || error == Error.NO_COLOR) {
+    } else if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_COLOR) {
         modifier = modifier.border(
             BorderStroke(2.dp, MaterialTheme.colorScheme.error),
             RoundedCornerShape(8.dp)
@@ -125,7 +306,7 @@ fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
     ) {
         var titleColor = MaterialTheme.colorScheme.onBackground
         var titleStyle = MaterialTheme.typography.labelMedium
-        if (error == Error.BOTH || error == Error.NO_COLOR) {
+        if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_COLOR) {
             titleColor = MaterialTheme.colorScheme.error
             titleStyle = MaterialTheme.typography.headlineMedium
         }
@@ -175,7 +356,7 @@ fun TimeControlButton(text: String, error: Error?, selected: Boolean, onClick: (
     var borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary)
     if (selected) {
         borderColor = BorderStroke(2.dp, Color.Green)
-    } else if (error == Error.BOTH || error == Error.NO_TIME_CONTROL) {
+    } else if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_TIME_CONTROL) {
         borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.error)
     }
 
@@ -207,7 +388,7 @@ fun ChooseTimeControl(
 
         var titleColor = MaterialTheme.colorScheme.onBackground
         var titleStyle = MaterialTheme.typography.labelMedium
-        if (error == Error.BOTH || error == Error.NO_TIME_CONTROL) {
+        if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_TIME_CONTROL) {
             titleColor = MaterialTheme.colorScheme.error
             titleStyle = MaterialTheme.typography.headlineMedium
         }
@@ -383,7 +564,7 @@ fun StartGameButton(
         OutlinedButton(
             onClick = {
                 if (pieceColor == null && timeControl == null) {
-                    error.value = Error.BOTH
+                    error.value = Error.NO_COLOR_OR_TIME_CONTROL
                 } else if (pieceColor == null) {
                     error.value = Error.NO_COLOR
                 } else if (timeControl == null) {
@@ -423,7 +604,7 @@ fun StartGameButton(
             )
 
         }
-        if (error.value == Error.BOTH) {
+        if (error.value == Error.NO_COLOR_OR_TIME_CONTROL) {
             Text(
                 text = stringResource(id = R.string.choose_color_time_control),
                 color = MaterialTheme.colorScheme.error,

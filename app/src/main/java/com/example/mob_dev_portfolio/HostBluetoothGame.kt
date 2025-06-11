@@ -29,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -339,7 +338,7 @@ fun BluetoothStartGameButton(
         OutlinedButton(
             onClick = {
                 if (pieceColor == null && timeControl == null) {
-                    error.value = Error.BOTH
+                    error.value = Error.NO_COLOR_OR_TIME_CONTROL
                 } else if (pieceColor == null) {
                     error.value = Error.NO_COLOR
                 } else if (timeControl == null) {
@@ -377,7 +376,7 @@ fun BluetoothStartGameButton(
             )
 
         }
-        if (error.value == Error.BOTH) {
+        if (error.value == Error.NO_COLOR_OR_TIME_CONTROL) {
             Text(
                 text = stringResource(id = R.string.choose_color_time_control),
                 color = MaterialTheme.colorScheme.error,

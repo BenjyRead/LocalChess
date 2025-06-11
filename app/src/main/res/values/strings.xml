@@ -54,4 +54,6 @@
     <string name="unknown_device"> Unknown Device </string>
     <string name="are_you_sure_you_want_to_exit"> Are you sure you want to Exit?</string>
     <string name="title_activity_engine_initial_choices">EngineInitialChoices</string>
+    <string name="title_activity_engine_game">EngineGame</string>
+    <string name="choose_elo">Choose Difficulty:</string>
 </resources>

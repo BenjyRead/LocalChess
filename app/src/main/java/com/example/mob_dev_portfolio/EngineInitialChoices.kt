@@ -28,45 +28,24 @@ import kotlinx.coroutines.launch
 class EngineInitialChoices : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val stockfish = StockfishEngine
-        stockfish.start(this)
         setContent {
-            val outputChannel = stockfish.outputChannel
-            val inputChannel = stockfish.inputChannel
-            val stockfishOutputFull = remember { mutableStateOf("") };
-            LaunchedEffect(Unit) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    for (output in outputChannel) {
-                        Log.d("EngineChoices", "Stockfish Output: $output")
-                        stockfishOutputFull.value += output + "\n"
-                    }
-                }
-            }
-//            LaunchedEffect(Unit) {
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    for (input in inputChannel) {
-//                        Log.d("EngineChoices", "Input: $input")
-//                    }
-//                }
-//            }
-            LaunchedEffect(Unit) {
-                inputChannel.send("position startpos")
-                inputChannel.send("go depth 1")
-            }
             MobdevportfolioTheme {
-                Text(
-                    text = stockfishOutputFull.value,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-                Text(
-                    text = "^^^",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                val pieceColor = remember { mutableStateOf<ColorChoice?>(null) }
+                val timeControlSelected = remember { mutableStateOf<TimeControl?>(null) }
+                val timeControlMainInSeconds = remember { mutableStateOf(300) }
+                val incrementInSeconds = remember { mutableStateOf(0) }
+                val eloSelected = remember { mutableStateOf<Elo?>(null) }
+                val stockfishElo = remember { mutableStateOf<Int?>(null) }
+                val error = remember { mutableStateOf<Error?>(null) }
+                EngineInitialChoices(
+                    pieceColor,
+                    timeControlSelected,
+                    timeControlMainInSeconds,
+                    incrementInSeconds,
+                    eloSelected,
+                    stockfishElo,
+                    error,
+                    EngineGame::class.java
                 )
             }
         }

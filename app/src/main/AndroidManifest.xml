@@ -17,6 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Mobdevportfolio">
         <activity
+            android:name=".EngineGame"
+            android:exported="false"
+            android:label="@string/title_activity_engine_game"
+            android:theme="@style/Theme.Mobdevportfolio" />
+        <activity
             android:name=".EngineInitialChoices"
             android:exported="false"
             android:label="@string/title_activity_engine_initial_choices"

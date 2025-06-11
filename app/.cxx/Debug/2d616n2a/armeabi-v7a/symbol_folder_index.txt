@@ -1,1 +1,0 @@
-/home/bread/Documents/github/LocalChess/app/build/intermediates/cxx/Debug/2d616n2a/obj/armeabi-v7a

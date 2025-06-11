@@ -1,0 +1,1 @@
+/home/bread/Documents/github/LocalChess/app/build/intermediates/cxx/Debug/2d616n2a/obj/arm64-v8a

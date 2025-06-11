@@ -20,34 +20,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.example.mob_dev_portfolio.ui.theme.MobdevportfolioTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class EngineInitialChoices : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val stockfish = StockfishEngine
+        stockfish.start(this)
         setContent {
-            val stockfish = StockfishEngine
             val outputChannel = stockfish.outputChannel
             val inputChannel = stockfish.inputChannel
-            val stockfishOutput = remember { mutableStateOf("") };
-            stockfish.start(this)
+            val stockfishOutputFull = remember { mutableStateOf("") };
             LaunchedEffect(Unit) {
-                lifecycleScope.launch {
-                    while (stockfishOutput.value.isEmpty()) {
-                        // Wait for the engine to output something
-                        inputChannel.send("uci")
-                        stockfishOutput.value = outputChannel.receive()
-                        Log.d("StockfishOutput", stockfishOutput.value)
+                CoroutineScope(Dispatchers.IO).launch {
+                    for (output in outputChannel) {
+                        Log.d("EngineChoices", "Stockfish Output: $output")
+                        stockfishOutputFull.value += output + "\n"
                     }
-                    Log.d(
-                        "StockfishOutput",
-                        "Engine started successfully: ${stockfishOutput.value}"
-                    )
                 }
+            }
+//            LaunchedEffect(Unit) {
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    for (input in inputChannel) {
+//                        Log.d("EngineChoices", "Input: $input")
+//                    }
+//                }
+//            }
+            LaunchedEffect(Unit) {
+                inputChannel.send("position startpos")
+                inputChannel.send("go depth 1")
             }
             MobdevportfolioTheme {
                 Text(
-                    text = stockfishOutput.value,
+                    text = stockfishOutputFull.value,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),

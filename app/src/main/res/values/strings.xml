@@ -56,4 +56,8 @@
     <string name="title_activity_engine_initial_choices">EngineInitialChoices</string>
     <string name="title_activity_engine_game">EngineGame</string>
     <string name="choose_elo">Choose Difficulty:</string>
+    <string name="please_choose_elo"> Please choose a difficulty</string>
+    <string name="choose_elo_time_control"> Please choose a difficulty and time control</string>
+    <string name="choose_elo_color"> Please choose a difficulty and color</string>
+    <string name="choose_elo_color_time_control"> Please choose a difficulty, color and time control</string>
 </resources>

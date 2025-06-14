@@ -106,24 +106,28 @@ fun EngineInitialChoices(
     nextActivity: Class<*>,
     optionalExtras: Map<String, Any> = emptyMap(),
 ) {
+//    TODO: error messages dont carry all cases, need to find a better way
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
     ) {
-        ChooseColorSegment(pieceColor, error.value)
+        ChooseColorSegment(pieceColor, error.value, engineChoice = true)
         ChooseTimeControl(
             timeControlSelected,
             timeControlMainInSeconds,
             incrementInSeconds,
-            error.value
+            error.value,
+            engineChoice = true
         )
         ChooseElo(error.value, eloSelected, stockfishElo)
-        StartGameButton(
+        EngineStartGameButton(
             pieceColor.value,
             timeControlSelected.value,
             timeControlMainInSeconds.value,
             incrementInSeconds.value,
+            eloSelected.value,
+            stockfishElo.value,
             error,
             nextActivity,
             optionalExtras
@@ -268,7 +272,7 @@ fun ChooseElo(
 fun ChooseColorButton(
     imageId: Int,
     contentDescription: String,
-    error: Error?,
+    error: Boolean,
     selected: Boolean = false,
     onClick: () -> Unit = {}
 ) {
@@ -278,7 +282,7 @@ fun ChooseColorButton(
         .clickable { onClick() }
     if (selected) {
         modifier = modifier.border(BorderStroke(2.dp, Color.Green), RoundedCornerShape(8.dp))
-    } else if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_COLOR) {
+    } else if (error) {
         modifier = modifier.border(
             BorderStroke(2.dp, MaterialTheme.colorScheme.error),
             RoundedCornerShape(8.dp)
@@ -300,13 +304,23 @@ fun ChooseColorButton(
 }
 
 @Composable
-fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
+fun ChooseColorSegment(
+    pieceColor: MutableState<ColorChoice?>,
+    error: Error?,
+    engineChoice: Boolean = false
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         var titleColor = MaterialTheme.colorScheme.onBackground
         var titleStyle = MaterialTheme.typography.labelMedium
-        if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_COLOR) {
+        var errorCondition = error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_COLOR
+        if (engineChoice) {
+            errorCondition =
+                errorCondition || error == Error.NO_ELO_OR_COLOR || error == Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR
+        }
+
+        if (errorCondition) {
             titleColor = MaterialTheme.colorScheme.error
             titleStyle = MaterialTheme.typography.headlineMedium
         }
@@ -325,7 +339,7 @@ fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
                 R.drawable.w_king,
                 "Choose White",
                 selected = pieceColor.value == ColorChoice.WHITE,
-                error = error,
+                error = errorCondition,
                 onClick = {
                     pieceColor.value = ColorChoice.WHITE
                 })
@@ -333,7 +347,7 @@ fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
                 R.drawable.b_king,
                 "Choose Black",
                 selected = pieceColor.value == ColorChoice.BLACK,
-                error = error,
+                error = errorCondition,
                 onClick = {
                     pieceColor.value = ColorChoice.BLACK
                 })
@@ -341,7 +355,7 @@ fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
                 R.drawable.wb_king,
                 "Random",
                 selected = pieceColor.value == ColorChoice.RANDOM,
-                error = error,
+                error = errorCondition,
                 onClick = {
                     pieceColor.value = ColorChoice.RANDOM
                 })
@@ -351,12 +365,12 @@ fun ChooseColorSegment(pieceColor: MutableState<ColorChoice?>, error: Error?) {
 }
 
 @Composable
-fun TimeControlButton(text: String, error: Error?, selected: Boolean, onClick: () -> Unit = {}) {
+fun TimeControlButton(text: String, error: Boolean, selected: Boolean, onClick: () -> Unit = {}) {
 
     var borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary)
     if (selected) {
         borderColor = BorderStroke(2.dp, Color.Green)
-    } else if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_TIME_CONTROL) {
+    } else if (error) {
         borderColor = BorderStroke(2.dp, MaterialTheme.colorScheme.error)
     }
 
@@ -383,12 +397,19 @@ fun ChooseTimeControl(
     timeControlMain: MutableState<Int>,
     increment: MutableState<Int>,
     error: Error?,
+    engineChoice: Boolean = false,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         var titleColor = MaterialTheme.colorScheme.onBackground
         var titleStyle = MaterialTheme.typography.labelMedium
-        if (error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_TIME_CONTROL) {
+        var errorCondition =
+            error == Error.NO_COLOR_OR_TIME_CONTROL || error == Error.NO_TIME_CONTROL
+        if (engineChoice) {
+            errorCondition =
+                errorCondition || error == Error.NO_ELO_OR_TIME_CONTROL || error == Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR
+        }
+        if (errorCondition) {
             titleColor = MaterialTheme.colorScheme.error
             titleStyle = MaterialTheme.typography.headlineMedium
         }
@@ -403,7 +424,7 @@ fun ChooseTimeControl(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             TimeControlButton(
-                "1+0", error,
+                "1+0", errorCondition,
                 selected = timeControlSelected.value == TimeControl.ONE_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.ONE_ZERO
@@ -411,7 +432,7 @@ fun ChooseTimeControl(
                     increment.value = 0
                 })
             TimeControlButton(
-                "5+0", error,
+                "5+0", errorCondition,
                 selected = timeControlSelected.value == TimeControl.FIVE_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.FIVE_ZERO
@@ -419,7 +440,7 @@ fun ChooseTimeControl(
                     increment.value = 0
                 })
             TimeControlButton(
-                "10+0", error,
+                "10+0", errorCondition,
                 selected = timeControlSelected.value == TimeControl.TEN_ZERO,
                 onClick = {
                     timeControlSelected.value = TimeControl.TEN_ZERO
@@ -428,7 +449,7 @@ fun ChooseTimeControl(
                 })
         }
         TimeControlButton(
-            "Custom", error,
+            "Custom", errorCondition,
             selected = timeControlSelected.value == TimeControl.CUSTOM,
             onClick = {
                 timeControlSelected.value = TimeControl.CUSTOM
@@ -604,21 +625,111 @@ fun StartGameButton(
             )
 
         }
-        if (error.value == Error.NO_COLOR_OR_TIME_CONTROL) {
+
+        val messageDict = mapOf(
+            Error.NO_COLOR to R.string.please_choose_color,
+            Error.NO_TIME_CONTROL to R.string.please_choose_time_control,
+            Error.NO_ELO to R.string.please_choose_elo,
+            Error.NO_COLOR_OR_TIME_CONTROL to R.string.choose_color_time_control,
+            Error.NO_ELO_OR_TIME_CONTROL to R.string.choose_elo_time_control,
+            Error.NO_ELO_OR_COLOR to R.string.choose_elo_color,
+            Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR to R.string.choose_elo_color_time_control,
+        )
+
+        val errorMessage = messageDict[error.value]
+        if (errorMessage != null) {
             Text(
-                text = stringResource(id = R.string.choose_color_time_control),
+                text = stringResource(id = errorMessage),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.headlineSmall,
             )
-        } else if (error.value == Error.NO_COLOR) {
+        }
+    }
+}
+
+@Composable
+fun EngineStartGameButton(
+    pieceColor: ColorChoice?,
+    timeControl: TimeControl?,
+    timeControlMain: Int?,
+    increment: Int?,
+    elo: Elo?,
+    eloNumber: Int?,
+    error: MutableState<Error?>,
+    nextActivity: Class<*>,
+    optionalExtras: Map<String, Any> = emptyMap(),
+) {
+    val context = LocalContext.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        var borderColor = MaterialTheme.colorScheme.onPrimary
+        if (error.value != null) {
+            borderColor = MaterialTheme.colorScheme.error
+        }
+        OutlinedButton(
+            onClick = {
+                error.value = when {
+                    pieceColor == null && timeControl == null && elo == null -> Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR
+                    pieceColor == null && timeControl == null -> Error.NO_COLOR_OR_TIME_CONTROL
+                    pieceColor == null && elo == null -> Error.NO_ELO_OR_COLOR
+                    timeControl == null && elo == null -> Error.NO_ELO_OR_TIME_CONTROL
+                    pieceColor == null -> Error.NO_COLOR
+                    timeControl == null -> Error.NO_TIME_CONTROL
+                    elo == null -> Error.NO_ELO
+                    else -> null
+                }
+                if (error.value == null) {
+                    val intent = Intent(context, nextActivity).apply {
+                        putExtra("color", pieceColor!!.name)
+                        putExtra("timeControlMain", timeControlMain)
+                        putExtra("increment", increment)
+                        putExtra("elo", eloNumber)
+                        for ((key, value) in optionalExtras) {
+                            when (value) {
+                                is Int -> putExtra(key, value)
+                                is String -> putExtra(key, value)
+                                is Boolean -> putExtra(key, value)
+                                else -> throw IllegalArgumentException("Unsupported type")
+                            }
+                        }
+                    }
+
+                    context.startActivity(intent)
+                }
+
+
+            },
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+            border = BorderStroke(2.dp, borderColor),
+        ) {
             Text(
-                text = stringResource(id = R.string.please_choose_color),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.headlineSmall,
+                text = stringResource(id = R.string.start_game),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelMedium,
             )
-        } else if (error.value == Error.NO_TIME_CONTROL) {
+
+        }
+
+        val messageDict = mapOf(
+            Error.NO_COLOR to R.string.please_choose_color,
+            Error.NO_TIME_CONTROL to R.string.please_choose_time_control,
+            Error.NO_ELO to R.string.please_choose_elo,
+            Error.NO_COLOR_OR_TIME_CONTROL to R.string.choose_color_time_control,
+            Error.NO_ELO_OR_TIME_CONTROL to R.string.choose_elo_time_control,
+            Error.NO_ELO_OR_COLOR to R.string.choose_elo_color,
+            Error.NO_ELO_OR_TIME_CONTROL_OR_COLOR to R.string.choose_elo_color_time_control,
+        )
+
+        val errorMessage = messageDict[error.value]
+        if (errorMessage != null) {
             Text(
-                text = stringResource(id = R.string.please_choose_time_control),
+                text = stringResource(id = errorMessage),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.headlineSmall,
             )

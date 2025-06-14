@@ -210,7 +210,7 @@ class HostBluetoothGame : ComponentActivity() {
                             bottomBar = { },
                         ) { contentPadding ->
                             BluetoothChessScreen(
-                                increment = incrementInSeconds.value!!,
+                                increment = incrementInSeconds.intValue,
                                 contentPadding = contentPadding,
                                 soundManager = soundManager,
                                 gameState = gameState,
@@ -238,7 +238,7 @@ class HostBluetoothGame : ComponentActivity() {
                                     hostTime,
                                     joinerTime,
                                     hostColor,
-                                    incrementInSeconds.value!!,
+                                    incrementInSeconds.intValue,
                                     soundManager,
                                     writer,
                                 )

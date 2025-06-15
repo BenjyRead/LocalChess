@@ -12,6 +12,9 @@ import com.example.mob_dev_portfolio.ui.theme.MobdevportfolioTheme
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class EngineGame : ComponentActivity() {
     private lateinit var soundManager: SoundManager
@@ -33,9 +36,11 @@ class EngineGame : ComponentActivity() {
         if (stockfishElo == -1) {
             throw IllegalArgumentException("No stockfish elo provided")
         }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            stockfish.inputChannel.send("setoption name UCI_ELO value $stockfishElo")
+        }
         setContent {
-            val outputChannel = stockfish.outputChannel
-            val inputChannel = stockfish.inputChannel
             val highlightedSquares = remember { mutableStateOf<Set<Square>>(emptySet()) }
             val selectedSquare = remember { mutableStateOf<Square?>(null) }
             val gameOverData = remember { mutableStateOf(gameOverData()) }
@@ -90,6 +95,7 @@ class EngineGame : ComponentActivity() {
                                 promotionData = promotionData,
                                 gameOverData = gameOverData,
                                 playerColor = playerColor,
+                                stockfish = stockfish,
                                 soundManager = soundManager
                             )
                         }

@@ -1,5 +1,6 @@
 package com.example.mob_dev_portfolio
 
+import StockfishEngine
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -23,6 +24,10 @@ import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun EngineChessScreen(
@@ -224,6 +229,7 @@ fun engineHandleBoardClick(
     gameOverData: MutableState<gameOverData>,
     playerColor: Side,
     board: MutableState<Board>,
+    stockfish: StockfishEngine,
     soundManager: SoundManager
 ) {
     if (board.value.sideToMove != playerColor) {
@@ -250,6 +256,17 @@ fun engineHandleBoardClick(
             square,
             soundManager
         )
+        doStockfishMove(
+            stockfish = stockfish,
+            playerTime = playerTime,
+            engineTime = engineTime,
+            increment = increment,
+            playerColor = playerColor,
+            gameOverData = gameOverData,
+            board = board,
+            soundManager = soundManager
+        )
+
     } else {
         highlightLegalMoves(selectedSquare, highlightedSquares, board, square)
     }
@@ -259,4 +276,45 @@ fun engineHandleBoardClick(
 @Composable
 fun EnginePromotionChoice() {
 
+}
+
+fun doStockfishMove(
+    stockfish: StockfishEngine,
+    playerTime: MutableState<Int>,
+    engineTime: MutableState<Int>,
+    increment: Int,
+    playerColor: Side,
+    gameOverData: MutableState<gameOverData>,
+    board: MutableState<Board>,
+    soundManager: SoundManager
+) {
+    val playerColorString = if (playerColor == Side.WHITE) "w" else "b"
+    val engineColorString = if (playerColor == Side.WHITE) "b" else "w"
+
+    if (board.value.sideToMove == playerColor) {
+        return
+    }
+    stockfish.inputChannel.trySend("position fen ${board.value.fen}")
+    stockfish.inputChannel.trySend("go ${playerColorString}time ${playerTime.value} ${engineColorString}time ${engineTime.value}inc $increment ${playerTime.value}inc $increment")
+
+    CoroutineScope(Dispatchers.IO).launch {
+        while (true) {
+            val lineSplit =
+                (stockfish.outputChannel.tryReceive().getOrNull() ?: continue).split(" ")
+            if (lineSplit[0] == "bestmove") {
+                val moveString = lineSplit[1]
+                executeMove(
+                    moveString,
+                    playerTime,
+                    engineTime,
+                    playerColor,
+                    increment,
+                    gameOverData,
+                    board,
+                    soundManager
+                )
+
+            }
+        }
+    }
 }

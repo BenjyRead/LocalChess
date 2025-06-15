@@ -528,6 +528,28 @@ fun executeMove(
     checkEndGameConditions(board, gameOverData)
 }
 
+fun executeMove(
+    moveString: String,
+    mainPlayerTime: MutableState<Int>,
+    opponentPlayerTime: MutableState<Int>,
+    oppositionColor: Side,
+    increment: Int,
+    gameOverData: MutableState<gameOverData>,
+    board: MutableState<Board>,
+    soundManager: SoundManager
+) {
+    if (board.value.sideToMove != oppositionColor) {
+        mainPlayerTime.value += increment
+    } else if (board.value.sideToMove == oppositionColor) {
+        opponentPlayerTime.value += increment
+    }
+
+    board.value.doMove(moveString)
+    soundManager.playMoveSound()
+
+    checkEndGameConditions(board, gameOverData)
+}
+
 fun checkEndGameConditions(
     board: MutableState<Board>,
     gameOverData: MutableState<gameOverData>

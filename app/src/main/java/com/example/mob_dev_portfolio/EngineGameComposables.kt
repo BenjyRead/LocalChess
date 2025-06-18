@@ -1,6 +1,7 @@
 package com.example.mob_dev_portfolio
 
 import StockfishEngine
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -27,7 +28,6 @@ import com.github.bhlangonijr.chesslib.move.Move
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun EngineChessScreen(
@@ -74,32 +74,31 @@ fun EngineChessScreen(
     }
 
     Box() {
-        val blurBoard by animateDpAsState(
-            targetValue = if (gameState.value in listOf(
-                    GameState.SAVING,
-                    GameState.EXITING
-                ) || gameOverData.value.gameOver
-            ) 5.dp else 0.dp,
+        val blurBoard by
+        animateDpAsState(
+            targetValue =
+                if (gameState.value in
+                    listOf(GameState.SAVING, GameState.EXITING) ||
+                    gameOverData.value.gameOver
+                )
+                    5.dp
+                else 0.dp,
             animationSpec = tween(durationMillis = 1000)
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .blur(
-                    blurBoard
-                )
-                .clickable { gameState.value = GameState.IN_GAME },
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+                    .blur(blurBoard)
+                    .clickable {
+                        gameState.value = GameState.IN_GAME
+                    },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            PlayerEngineRow(
-                engineTime.value,
-                engineColor,
-                board.value,
-                null
-            )
+            PlayerEngineRow(engineTime.value, engineColor, board.value, null)
             EnginePlaySection(
                 board,
                 highlightedSquares,
@@ -108,16 +107,9 @@ fun EngineChessScreen(
                 gameOverData,
                 onSquareClick
             )
-            PlayerEngineRow(
-                playerTime.value,
-                playerColor,
-                board.value,
-                playerResignData
-            )
+            PlayerEngineRow(playerTime.value, playerColor, board.value, playerResignData)
         }
-
     }
-
 }
 
 @Composable
@@ -133,10 +125,8 @@ fun PlayerEngineRow(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             DisplayTime(time)
-            DisplayCapturedPieces(side, board)//, oppositionColor == side)
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
+            DisplayCapturedPieces(side, board) // , oppositionColor == side)
+            Column(horizontalAlignment = Alignment.End) {
                 if (resignData != null) {
                     ResignButton(resignData, side)
                 }
@@ -155,11 +145,7 @@ fun EnginePlaySection(
     onSquareClick: (Square) -> Unit
 ) {
 
-    Box(
-        modifier = Modifier,
-        contentAlignment = Alignment.Center
-    ) {
-
+    Box(modifier = Modifier, contentAlignment = Alignment.Center) {
         EngineChessBoard(
             board = board.value,
             highlightedSquares = highlightedSquares,
@@ -168,12 +154,9 @@ fun EnginePlaySection(
         )
 
         if (promotionData.value.midPromotion) {
-            EnginePromotionChoice(
-
-            )
+            EnginePromotionChoice()
         }
     }
-
 }
 
 @Composable
@@ -183,18 +166,18 @@ fun EngineChessBoard(
     promotionData: PromotionData,
     onSquareClick: (Square) -> Unit,
 ) {
-    val blurBoard by animateDpAsState(
+    val blurBoard by
+    animateDpAsState(
         targetValue = if (promotionData.midPromotion) 5.dp else 0.dp,
-        animationSpec = tween(durationMillis = if (promotionData.midPromotion) 1000 else 300)
+        animationSpec =
+            tween(durationMillis = if (promotionData.midPromotion) 1000 else 300)
     )
 
     Column(
-        modifier = Modifier
-            .blur(blurBoard),
+        modifier = Modifier.blur(blurBoard),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         for (row in 7 downTo 0) {
             Row {
                 for (col in 0..7) {
@@ -206,13 +189,9 @@ fun EngineChessBoard(
                         square,
                         piece,
                         highlighted = highlighted,
-                        onClick = {
-                            onSquareClick(square)
-                        }
+                        onClick = { onSquareClick(square) }
                     )
-
                 }
-
             }
         }
     }
@@ -240,9 +219,9 @@ fun engineHandleBoardClick(
 
     val move = Move(selectedSquare.value, square)
 
-    val isLegalMove =
-        move in board.value.legalMoves()
+    val isLegalMove = move in board.value.legalMoves()
     if (isLegalMove) {
+        Log.d("EngineGame", "Board (pre-player-move): $board")
         executeMove(
             selectedSquare,
             highlightedSquares,
@@ -256,7 +235,8 @@ fun engineHandleBoardClick(
             square,
             soundManager
         )
-        doStockfishMove(
+        Log.d("EngineGame", "Board (pre-engine-move): $board")
+        doEngineMove(
             stockfish = stockfish,
             playerTime = playerTime,
             engineTime = engineTime,
@@ -266,19 +246,16 @@ fun engineHandleBoardClick(
             board = board,
             soundManager = soundManager
         )
-
     } else {
         highlightLegalMoves(selectedSquare, highlightedSquares, board, square)
     }
-
 }
 
 @Composable
 fun EnginePromotionChoice() {
-
 }
 
-fun doStockfishMove(
+fun doEngineMove(
     stockfish: StockfishEngine,
     playerTime: MutableState<Int>,
     engineTime: MutableState<Int>,
@@ -295,7 +272,9 @@ fun doStockfishMove(
         return
     }
     stockfish.inputChannel.trySend("position fen ${board.value.fen}")
-    stockfish.inputChannel.trySend("go ${playerColorString}time ${playerTime.value} ${engineColorString}time ${engineTime.value}inc $increment ${playerTime.value}inc $increment")
+    stockfish.inputChannel.trySend(
+        "go ${playerColorString}time ${playerTime.value} ${engineColorString}time ${engineTime.value}inc $increment ${playerTime.value}inc $increment"
+    )
 
     CoroutineScope(Dispatchers.IO).launch {
         while (true) {
@@ -313,7 +292,8 @@ fun doStockfishMove(
                     board,
                     soundManager
                 )
-
+                Log.d("EngineGame", "Board (post-engine-move): $board")
+                break
             }
         }
     }

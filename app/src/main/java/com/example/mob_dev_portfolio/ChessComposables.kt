@@ -538,12 +538,15 @@ fun executeMove(
     board: MutableState<Board>,
     soundManager: SoundManager
 ) {
+    Log.d("executeMove", "Board: ${board.value}")
+
     if (board.value.sideToMove != oppositionColor) {
         mainPlayerTime.value += increment
     } else if (board.value.sideToMove == oppositionColor) {
         opponentPlayerTime.value += increment
     }
 
+    Log.d("executeMove", "moveString: $moveString")
     board.value.doMove(moveString)
     soundManager.playMoveSound()
 

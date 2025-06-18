@@ -2,9 +2,11 @@ package com.example.mob_dev_portfolio
 
 import StockfishEngine
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,9 +39,6 @@ class EngineGame : ComponentActivity() {
             throw IllegalArgumentException("No stockfish elo provided")
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            stockfish.inputChannel.send("setoption name UCI_ELO value $stockfishElo")
-        }
         setContent {
             val highlightedSquares = remember { mutableStateOf<Set<Square>>(emptySet()) }
             val selectedSquare = remember { mutableStateOf<Square?>(null) }
@@ -55,11 +54,24 @@ class EngineGame : ComponentActivity() {
                 mutableIntStateOf(timeControlMain)
             }
 
-            val board = remember {
-                mutableStateOf(Board().apply {
-                    intent.getStringExtra("boardFEN")?.let { loadFromFen(it) }
-                })
+//            TODO: board is being remembered once activity is stopped and resumed, which is wrong
+            val board =
+                remember {
+                    mutableStateOf(Board().apply {
+                        intent.getStringExtra("boardFEN")?.let {
+                            loadFromFen(it)
+                        }
+                    })
+                }
+            Log.d("EngineGame", "Initial FEN: ${board.value.fen}")
+
+            LaunchedEffect(Unit) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    stockfish.inputChannel.send("position fen ${board.value.fen}")
+                    stockfish.inputChannel.send("setoption name UCI_ELO value $stockfishElo")
+                }
             }
+
             MobdevportfolioTheme {
                 Scaffold(
                     topBar = {
@@ -107,6 +119,7 @@ class EngineGame : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        Log.d("EngineGame", "onDestroy called")
         super.onDestroy()
         soundManager.releaseAll()
     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,13 +52,15 @@ fun EngineChessScreen(
 
     val engineColor = if (playerColor == Side.WHITE) Side.BLACK else Side.WHITE
 
-    LaunchedEffects(
-        playerTime,
-        engineTime,
-        gameOverData,
-        board,
-        engineColor,
-        soundManager,
+    EngineLaunchedEffects(
+        stockfish = StockfishEngine,
+        playerTime = playerTime,
+        engineTime = engineTime,
+        increment = increment,
+        playerColor = playerColor,
+        gameOverData = gameOverData,
+        board = board,
+        soundManager = soundManager
     )
 
     if (playerTime.value <= 0) {
@@ -109,6 +112,45 @@ fun EngineChessScreen(
                 onSquareClick
             )
             PlayerEngineRow(playerTime.value, playerColor, board.value, playerResignData)
+        }
+    }
+}
+
+@Composable
+fun EngineLaunchedEffects(
+    stockfish: StockfishEngine,
+    playerTime: MutableState<Int>,
+    engineTime: MutableState<Int>,
+    increment: Int,
+    playerColor: Side,
+    gameOverData: MutableState<gameOverData>,
+    board: MutableState<Board>,
+    soundManager: SoundManager
+) {
+    LaunchedEffects(
+        playerTime,
+        engineTime,
+        gameOverData,
+        board,
+        when (playerColor) {
+            Side.WHITE -> Side.BLACK
+            Side.BLACK -> Side.WHITE
+        },
+        soundManager,
+    )
+
+    LaunchedEffect(board.value.sideToMove) {
+        if (board.value.sideToMove != playerColor) {
+            doEngineMove(
+                stockfish = stockfish,
+                playerTime = playerTime,
+                engineTime = engineTime,
+                increment = increment,
+                playerColor = playerColor,
+                gameOverData = gameOverData,
+                board = board,
+                soundManager = soundManager
+            )
         }
     }
 }
@@ -252,16 +294,16 @@ fun engineHandleBoardClick(
             soundManager
         )
         Log.d("EngineGame", "Board (pre-engine-move): $board")
-        doEngineMove(
-            stockfish = stockfish,
-            playerTime = playerTime,
-            engineTime = engineTime,
-            increment = increment,
-            playerColor = playerColor,
-            gameOverData = gameOverData,
-            board = board,
-            soundManager = soundManager
-        )
+//        doEngineMove(
+//            stockfish = stockfish,
+//            playerTime = playerTime,
+//            engineTime = engineTime,
+//            increment = increment,
+//            playerColor = playerColor,
+//            gameOverData = gameOverData,
+//            board = board,
+//            soundManager = soundManager
+//        )
     } else {
         highlightLegalMoves(selectedSquare, highlightedSquares, board, square)
     }

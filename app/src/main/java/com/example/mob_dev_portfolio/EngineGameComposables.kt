@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.github.bhlangonijr.chesslib.Board
@@ -150,11 +151,20 @@ fun EnginePlaySection(
             board = board.value,
             highlightedSquares = highlightedSquares,
             promotionData = promotionData.value,
-            onSquareClick = onSquareClick
+            onSquareClick = onSquareClick,
+            playerColor = playerColor,
         )
 
         if (promotionData.value.midPromotion) {
-            EnginePromotionChoice()
+            PromotionChoice(
+                gameOverData,
+                board,
+                oppositionColors = when (playerColor) {
+                    Side.WHITE -> Side.BLACK
+                    Side.BLACK -> Side.WHITE
+                },
+                promotionData,
+            )
         }
     }
 }
@@ -163,6 +173,7 @@ fun EnginePlaySection(
 fun EngineChessBoard(
     board: Board,
     highlightedSquares: Set<Square>,
+    playerColor: Side,
     promotionData: PromotionData,
     onSquareClick: (Square) -> Unit,
 ) {
@@ -174,7 +185,11 @@ fun EngineChessBoard(
     )
 
     Column(
-        modifier = Modifier.blur(blurBoard),
+        modifier = Modifier
+            .blur(blurBoard)
+            .graphicsLayer {
+                rotationZ = if (playerColor == Side.WHITE) 0f else 180f
+            },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -189,7 +204,8 @@ fun EngineChessBoard(
                         square,
                         piece,
                         highlighted = highlighted,
-                        onClick = { onSquareClick(square) }
+                        onClick = { onSquareClick(square) },
+                        pieceFlipped = playerColor == Side.BLACK,
                     )
                 }
             }
@@ -249,10 +265,6 @@ fun engineHandleBoardClick(
     } else {
         highlightLegalMoves(selectedSquare, highlightedSquares, board, square)
     }
-}
-
-@Composable
-fun EnginePromotionChoice() {
 }
 
 fun doEngineMove(

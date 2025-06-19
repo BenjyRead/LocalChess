@@ -114,6 +114,16 @@ fun EngineChessScreen(
             PlayerEngineRow(playerTime.value, playerColor, board.value, playerResignData)
         }
     }
+
+    if (playerResignData.value.confirmed) {
+        gameOverData.value.gameOver = true
+        gameOverData.value.gameOverMessageId =
+            if (playerColor == Side.WHITE) R.string.Black_Wins else R.string.White_Wins
+    }
+
+    if (gameOverData.value.gameOver) {
+        EndGameDialog(gameOverData.value)
+    }
 }
 
 @Composable

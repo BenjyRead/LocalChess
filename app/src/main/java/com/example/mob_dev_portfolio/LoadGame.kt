@@ -9,14 +9,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
@@ -26,20 +24,16 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mob_dev_portfolio.ui.theme.MobdevportfolioTheme
 import org.json.JSONObject
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class LoadGame : ComponentActivity() {
@@ -119,14 +113,6 @@ fun OverTheBoardFile(context: Context, fileName: String, fileList: SnapshotState
                 val fileInput = context.openFileInput(fileName)
                 val json = fileInput.bufferedReader().use { it.readText() }
                 val jsonObject = JSONObject(json)
-//                val gameData = mapOf(
-//                    "board" to board,
-//                    "mainPlayerTime" to mainPlayerTime,
-//                    "opponentPlayerTime" to opponentPlayerTime,
-//                    "opponentColor" to opponentColor,
-//                    "timeControlMain" to timeControlMain,
-//                    "increment" to increment
-//                )
 
                 val board = jsonObject.getString("boardFEN")
                 val mainPlayerTime = jsonObject.getInt("mainPlayerTime")
@@ -142,6 +128,72 @@ fun OverTheBoardFile(context: Context, fileName: String, fileList: SnapshotState
                 intent.putExtra("opponentColor", opponentColor)
                 intent.putExtra("timeControlMain", timeControlMain)
                 intent.putExtra("increment", increment)
+                context.startActivity(intent)
+
+            },
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimary),
+        ) {
+            Text(
+//            TODO: Not using strings.xml might be bad practice
+                text = "${date.year}-${date.monthValue}-${date.dayOfMonth} ${date.hour}:${date.minute}",
+                modifier = Modifier
+                    .padding(4.dp),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+        DeleteButton(fileName, fileList)
+    }
+}
+
+@Composable
+fun EngineGameFile(context: Context, fileName: String, fileList: SnapshotStateList<String>) {
+
+    val dateTimeString = fileName.substringBeforeLast("_")
+    val truncated = dateTimeString.substringBefore(".")
+
+    val date: LocalDateTime;
+    try {
+        date = LocalDateTime.parse(truncated)
+    } catch (e: Exception) {
+        Log.d("EngineGameFile", "Error parsing date: $truncated")
+        return
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        OutlinedButton(
+            onClick = {
+                val fileInput = context.openFileInput(fileName)
+                val json = fileInput.bufferedReader().use { it.readText() }
+                val jsonObject = JSONObject(json)
+
+                val board = jsonObject.getString("boardFEN")
+                val mainPlayerTime = jsonObject.getInt("mainPlayerTime")
+                val opponentPlayerTime = jsonObject.getInt("opponentPlayerTime")
+                val opponentColor = jsonObject.getString("opponentColor")
+                val timeControlMain = jsonObject.getInt("timeControlMain")
+                val increment = jsonObject.getInt("increment")
+                val elo = jsonObject.getInt("elo")
+
+                val intent = Intent(context, EngineGame::class.java)
+                intent.putExtra("boardFEN", board)
+                intent.putExtra("mainPlayerTime", mainPlayerTime)
+                intent.putExtra("opponentPlayerTime", opponentPlayerTime)
+                intent.putExtra("opponentColor", opponentColor)
+                intent.putExtra("timeControlMain", timeControlMain)
+                intent.putExtra("increment", increment)
+                intent.putExtra("elo", elo)
                 context.startActivity(intent)
 
             },
@@ -193,6 +245,31 @@ fun LoadOverTheBoardGames(fileList: SnapshotStateList<String>) {
 }
 
 @Composable
+fun LoadEngineGames(fileList: SnapshotStateList<String>) {
+    val context = LocalContext.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = stringResource(id = R.string.vs_computer_games),
+            modifier = Modifier
+                .padding(16.dp),
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.labelMedium,
+        )
+
+        val engineGameFiles = fileList.filter { it.endsWith("_EngineGame.json") }
+        Log.d("LoadEngine", "Engine game files: $engineGameFiles")
+
+        for (file in engineGameFiles) {
+            EngineGameFile(context, file, fileList);
+        }
+    }
+
+}
+
+@Composable
 fun LoadGameScreen(paddingValues: PaddingValues, fileList: SnapshotStateList<String>) {
 
     Column(
@@ -200,6 +277,7 @@ fun LoadGameScreen(paddingValues: PaddingValues, fileList: SnapshotStateList<Str
             .padding(paddingValues)
     ) {
         LoadOverTheBoardGames(fileList)
+        LoadEngineGames(fileList)
     }
 
 }

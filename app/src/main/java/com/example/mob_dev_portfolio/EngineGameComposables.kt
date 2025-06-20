@@ -46,6 +46,7 @@ fun EngineChessScreen(
     gameOverData: MutableState<gameOverData>,
     gameState: MutableState<GameState>,
     playerResignData: MutableState<ResignData>,
+    stockfishElo: Int,
     onSquareClick: (Square) -> Unit
 ) {
     val context = LocalContext.current
@@ -133,7 +134,9 @@ fun EngineChessScreen(
             engineTime.value,
             engineColor,
             timeControlMain,
-            increment
+            increment,
+            enginePlay = true,
+            elo = stockfishElo,
         )
     } else if (gameState.value == GameState.SAVING) {
         SaveDialog(
@@ -143,7 +146,9 @@ fun EngineChessScreen(
             engineTime.value,
             engineColor,
             timeControlMain,
-            increment
+            increment,
+            enginePlay = true,
+            elo = stockfishElo,
         )
     }
 }
@@ -298,7 +303,6 @@ fun engineHandleBoardClick(
     gameOverData: MutableState<gameOverData>,
     playerColor: Side,
     board: MutableState<Board>,
-    stockfish: StockfishEngine,
     soundManager: SoundManager
 ) {
     if (board.value.sideToMove != playerColor) {
@@ -384,3 +388,4 @@ fun doEngineMove(
         }
     }
 }
+

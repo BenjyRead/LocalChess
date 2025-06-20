@@ -105,10 +105,10 @@ class EngineGame : ComponentActivity() {
                         gameOverData = gameOverData,
                         gameState = gameState,
                         playerResignData = playerResignData,
+                        stockfishElo = stockfishElo,
                         onSquareClick = { square ->
                             engineHandleBoardClick(
                                 square = square,
-                                board = board,
                                 selectedSquare = selectedSquare,
                                 highlightedSquares = highlightedSquares,
                                 playerTime = playerTime,
@@ -117,7 +117,7 @@ class EngineGame : ComponentActivity() {
                                 promotionData = promotionData,
                                 gameOverData = gameOverData,
                                 playerColor = playerColor,
-                                stockfish = stockfish,
+                                board = board,
                                 soundManager = soundManager
                             )
                         }

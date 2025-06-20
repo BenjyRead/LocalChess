@@ -60,4 +60,5 @@
     <string name="choose_elo_time_control"> Please choose a difficulty and time control</string>
     <string name="choose_elo_color"> Please choose a difficulty and color</string>
     <string name="choose_elo_color_time_control"> Please choose a difficulty, color and time control</string>
+    <string name="vs_computer_games"> Versus Computer Games</string>
 </resources>

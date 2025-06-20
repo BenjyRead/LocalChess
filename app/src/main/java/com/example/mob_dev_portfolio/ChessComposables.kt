@@ -240,7 +240,11 @@ fun ChessScreen(
 }
 
 @Composable
-fun TopBar(soundManager: SoundManager, gameState: MutableState<GameState>) {
+fun TopBar(
+    soundManager: SoundManager,
+    gameState: MutableState<GameState>,
+    enginePlay: Boolean = false
+) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -692,19 +696,33 @@ fun saveGame(
     opponentPlayerTime: Int,
     opponentColor: Side,
     timeControlMain: Int,
-    increment: Int
+    increment: Int,
+    enginePlay: Boolean = false,
+    elo: Int? = null
 ) {
-    val gameData = mapOf(
-        "boardFEN" to board.fen,
-        "mainPlayerTime" to mainPlayerTime,
-        "opponentPlayerTime" to opponentPlayerTime,
-        "opponentColor" to opponentColor.name,
-        "timeControlMain" to timeControlMain,
-        "increment" to increment
-    )
+    if (enginePlay && elo == null) {
+        throw IllegalArgumentException("Elo must be provided for engine games")
+    }
+
+    val gameData = buildMap<String, Any> {
+        put("boardFEN", board.fen)
+        put("mainPlayerTime", mainPlayerTime)
+        put("opponentPlayerTime", opponentPlayerTime)
+        put("opponentColor", opponentColor.name)
+        put("timeControlMain", timeControlMain)
+        put("increment", increment)
+        if (enginePlay) {
+            put("elo", elo!!)
+        }
+    }
 
     val json = JSONObject(gameData)
-    val fileName = LocalDateTime.now().toString() + "_OverTheBoard.json"
+    val fileName: String;
+    if (enginePlay) {
+        fileName = LocalDateTime.now().toString() + "_EngineGame.json"
+    } else {
+        fileName = LocalDateTime.now().toString() + "_OverTheBoard.json"
+    }
 
 
     context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
@@ -723,8 +741,13 @@ fun SaveButton(
     opponentPlayerTime: Int,
     opponentColor: Side,
     timeControlMain: Int,
-    increment: Int
+    increment: Int,
+    enginePlay: Boolean = false,
+    elo: Int? = null
 ) {
+    if (enginePlay && elo == null) {
+        throw IllegalArgumentException("Elo must be provided for engine games")
+    }
     val context = LocalContext.current
     OutlinedButton(
         onClick = {
@@ -735,7 +758,9 @@ fun SaveButton(
                 opponentPlayerTime,
                 opponentColor,
                 timeControlMain,
-                increment
+                increment,
+                enginePlay = enginePlay,
+                elo = elo
             )
         },
         shape = MaterialTheme.shapes.medium,
@@ -782,8 +807,14 @@ fun ExitDialog(
     opponentPlayerTime: Int,
     opponentColor: Side,
     timeControlMain: Int,
-    increment: Int
+    increment: Int,
+    enginePlay: Boolean = false,
+    elo: Int? = null
 ) {
+    if (enginePlay && elo == null) {
+        throw IllegalArgumentException("Elo must be provided for engine games")
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -803,7 +834,9 @@ fun ExitDialog(
                 opponentPlayerTime,
                 opponentColor,
                 timeControlMain,
-                increment
+                increment,
+                enginePlay = enginePlay,
+                elo = elo
             )
             CancelButton(gameState)
         }
@@ -820,8 +853,14 @@ fun SaveDialog(
     opponentPlayerTime: Int,
     opponentColor: Side,
     timeControlMain: Int,
-    increment: Int
+    increment: Int,
+    enginePlay: Boolean = false,
+    elo: Int? = null
 ) {
+
+    if (enginePlay && elo == null) {
+        throw IllegalArgumentException("Elo must be provided for engine games")
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -841,7 +880,9 @@ fun SaveDialog(
                 opponentPlayerTime,
                 opponentColor,
                 timeControlMain,
-                increment
+                increment,
+                enginePlay = enginePlay,
+                elo = elo
             )
             CancelButton(gameState)
         }

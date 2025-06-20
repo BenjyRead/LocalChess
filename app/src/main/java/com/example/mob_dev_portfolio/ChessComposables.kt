@@ -217,7 +217,6 @@ fun ChessScreen(
         if (gameState.value == GameState.EXITING) {
             ExitDialog(
                 gameState,
-                context,
                 board.value,
                 mainPlayerTime.value,
                 opponentPlayerTime.value,
@@ -778,7 +777,6 @@ fun CancelButton(gameState: MutableState<GameState>) {
 @Composable
 fun ExitDialog(
     gameState: MutableState<GameState>,
-    context: Context,
     board: Board,
     mainPlayerTime: Int,
     opponentPlayerTime: Int,

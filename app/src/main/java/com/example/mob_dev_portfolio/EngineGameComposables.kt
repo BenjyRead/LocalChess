@@ -124,6 +124,28 @@ fun EngineChessScreen(
     if (gameOverData.value.gameOver) {
         EndGameDialog(gameOverData.value)
     }
+
+    if (gameState.value == GameState.EXITING) {
+        ExitDialog(
+            gameState,
+            board.value,
+            playerTime.value,
+            engineTime.value,
+            engineColor,
+            timeControlMain,
+            increment
+        )
+    } else if (gameState.value == GameState.SAVING) {
+        SaveDialog(
+            gameState,
+            board.value,
+            playerTime.value,
+            engineTime.value,
+            engineColor,
+            timeControlMain,
+            increment
+        )
+    }
 }
 
 @Composable

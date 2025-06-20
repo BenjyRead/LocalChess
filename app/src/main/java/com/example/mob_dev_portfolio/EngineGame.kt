@@ -4,6 +4,7 @@ import StockfishEngine
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
@@ -72,13 +73,22 @@ class EngineGame : ComponentActivity() {
                 }
             }
 
+            onBackPressedDispatcher.addCallback(
+                this,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        gameState.value = GameState.EXITING
+                    }
+                }
+            )
+
             MobdevportfolioTheme {
                 Scaffold(
                     topBar = {
-
+                        TopBar(soundManager, gameState)
                     },
                     bottomBar = {
-
+                        BottomBar(gameState)
                     },
                 ) { contentPadding ->
                     EngineChessScreen(

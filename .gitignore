@@ -25,3 +25,5 @@ gradle-app.setting
 
 **/.cache/
 
+kls_database.db
+local.properties

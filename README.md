@@ -14,7 +14,13 @@ Currently in the process of publishing to the Google Play Store, and F-Droid.
 
 # Building from source
 
-I would recommend installing ADB, Kotlin and Cmake on your system before building the project (Java 11 might also be necessary).
+Dependencies:
+```
+ADB
+Kotlin
+Cmake
+Java 11
+```
 
 `/gradlew installDebug` to build and install the app on a connected device (make sure device is visible on `adb devices`).
 

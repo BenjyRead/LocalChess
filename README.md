@@ -1,8 +1,10 @@
 # LocalChess
 Simple, intuitive Android chess app for playing chess locally/over Bluetooth. Also includes stockfish integration for playing against the computer.
 
-![image](https://github.com/user-attachments/assets/980512a8-3271-4854-89e7-8e8d8f61af15)
-![image](https://github.com/user-attachments/assets/b8ad1f1c-95f8-4bab-8956-6fc44fa6803c)
+<img src="https://github.com/user-attachments/assets/980512a8-3271-4854-89e7-8e8d8f61af15" width="150" />
+
+<img src="https://github.com/user-attachments/assets/b8ad1f1c-95f8-4bab-8956-6fc44fa6803c" width="150" />
+
 
 
 

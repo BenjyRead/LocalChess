@@ -28,5 +28,6 @@ gradle-app.setting
 kls_database.db
 local.properties
 
-app/localchess-release-key.keystore
+*.keystore
+*.jks
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">mob-dev-portfolio</string>
+    <string name="app_name">LocalChess</string>
     <string name="title_activity_main">LocalChess</string>
     <string name="homepageTitle"> Chess </string>
     <string name="playOnline"> Play Online </string>

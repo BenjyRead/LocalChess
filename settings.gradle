@@ -7,5 +7,5 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-rootProject.name = "mob-dev-portfolio"
+rootProject.name = "LocalChess"
 include ':app'

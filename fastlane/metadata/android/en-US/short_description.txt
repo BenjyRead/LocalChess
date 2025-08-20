@@ -1,0 +1,1 @@
+Simple, Intuitive Android app for playing chess locally.

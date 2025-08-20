@@ -1,0 +1,1 @@
+Simple, intuitive Android chess app for playing chess locally/over Bluetooth. Includes Stockfish integration for playing against the computer.

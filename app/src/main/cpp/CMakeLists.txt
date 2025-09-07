@@ -45,6 +45,13 @@ target_include_directories(stockfishjni PRIVATE
         ${JNI_INCLUDE_DIR2}
 )
 
-target_compile_definitions(stockfishjni PRIVATE __ANDROID__ ANDROID NNUE_EMBEDDING_OFF)
+target_compile_definitions(stockfishjni PRIVATE
+        __ANDROID__
+        ANDROID
+        NNUE_EMBEDDING_OFF
+        # GIT_DATE = "May 25 2025"
+        GIT_DATE="20250525"
+        GIT_SHA="73c55e894959b2dcd40c179ade6e1eafc9d952ea"
+)
 
 
